@@ -19,13 +19,15 @@ public class ConsoleApp1
         }
         UAsset myAsset = new UAsset(args[0], EngineVersion.VER_UE4_27);
         int count = 0;
-
         foreach (DataTableExport table in myAsset.Exports)
         {
+            Console.WriteLine("Finding table: " + table.ObjectName);
             foreach (var export in table.Table.Data.FindAll((StructPropertyData d) => d.Name.ToString().Contains(args[1])))
             {
+                 Console.WriteLine("Finding export: " + export.Name);
                 foreach (var value in export.Value.FindAll((PropertyData d) => d.Name.ToString().Contains(args[2])))
                 {
+                    Console.WriteLine(value + " " + value.GetType());
                     if (value is FloatPropertyData)
                     {
                         FloatPropertyData data = (FloatPropertyData)value;
@@ -91,6 +93,34 @@ public class ConsoleApp1
                                         val = Math.Floor(val);
                                     else if (num.Equals("u"))
                                         val = Math.Ceiling(val);
+                                    break;
+                            }
+                        }
+                        Console.WriteLine(table.ObjectName + "." + export.Name + "." + value.Name + ": " + data.Value + " > " + val);
+                        data.Value = val;
+                        count++;
+                    }
+                    else if (value is IntPropertyData)
+                    {
+                        IntPropertyData data = (IntPropertyData)value;
+                        int val = data.Value;
+                        foreach (string calc in args[3].Split(" "))
+                        {
+                            string op = calc.Substring(0, 1);
+                            string num = calc.Substring(1);
+                            switch (op)
+                            {
+                                case "+":
+                                    val += int.Parse(num);
+                                    break;
+                                case "-":
+                                    val -= int.Parse(num);
+                                    break;
+                                case "*":
+                                    val *= int.Parse(num);
+                                    break;
+                                case "/":
+                                    val /= int.Parse(num);
                                     break;
                             }
                         }
